@@ -1,6 +1,7 @@
 $(document).ready(function(){
+	enCours = $('#enCours');
 	getDico();
-	testDichotomie();
+	testOneByOne();
 /*
 	reponse = testDichotomie();
 	//if(reponse !== 'not found') {
