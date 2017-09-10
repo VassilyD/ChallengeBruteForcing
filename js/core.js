@@ -1,14 +1,6 @@
 $(document).ready(function(){
 	getDico();
-	reponse = testOneByOne();
-	//if(reponse !== 'not found') {
-		var texte = '<h2>Un Par un : </h2>';
-		texte += '<p>Mot de passe : ' + reponse + '<br>';
-		texte += 'Trouvé en ' + nbTest + ' essais!</p>';
-		$('#resultat1').html(texte);
-	//}
-	nbTest = 0;
-	isGood = false;
+	testOneByOne();
 
 	reponse = testDichotomie();
 	//if(reponse !== 'not found') {

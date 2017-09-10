@@ -1,4 +1,5 @@
 let dico = [];
+let workingDico = [];
 let nbTest = 0;
 let reponse = '';
 let isGood = false;
@@ -19,7 +20,7 @@ function getDico() {
 
 // envoie la requete ajax pour tester un mot de passe et en vérifie le résultat
 // configure et renvoie isGood à true si le mdp correspond, à false sinon;
-function testPwd(password = '') {
+function testPwd(password = '', nextFonction = null, returnFonction = null) {
 	if(password != '') {
 		// Actuellement commenté car sur mon pc je n'ai pas encore installé de server...
 		/*var xhttp = new XMLHttpRequest();
@@ -36,19 +37,44 @@ function testPwd(password = '') {
 	
 	nbTest++;
 	isGood = (password === 'resolu');
-	return isGood;
+	if(!isGood) {
+		if(nextFonction != null) nextFonction();
+	} else {
+		if(returnFonction != null) {
+			reponse = password;
+			returnFonction();
+		}
+	}
 }
 
+function formatResult() {
+	var texte = '<h2>Un Par un : </h2>';
+	texte += '<p>Mot de passe : ' + reponse + '<br>';
+	texte += 'Trouvé en ' + nbTest + ' essais!</p>';
+	nbTest = 0;
+	isGood = false;
+	return texte;
+}
+
+function testOneByOneFin() {
+	$('#resultat1').html(formatResult());
+}
+function testOneByOneStep() {
+	var password = workingDico[0];
+	workingDico = workingDico.slice(1);
+	testPwd(password, testOneByOneStep, testOneByOneFin);
+}
 // Teste tous les mots du dictionnaire un par un
 // Renvoie le mot trouvé, sinon renvoie 'not found'
 function testOneByOne() {
-	var length = dico.length;
+	workingDico = dico.slice(0);
+	testOneByOneStep();
+/*	var length = dico.length;
 	var i = 0;
 	while(i < length && !testPwd(dico[i])) {
 		i++;
 	}
-
-	return (isGood)?dico[i]:'not found';
+*/
 }
 
 // Teste le mot central récursivement
