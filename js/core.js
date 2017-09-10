@@ -1,7 +1,7 @@
 $(document).ready(function(){
 	getDico();
-	testOneByOne();
-
+	testDichotomie();
+/*
 	reponse = testDichotomie();
 	//if(reponse !== 'not found') {
 		var texte = '<h2>Dichotomie : </h2>';
@@ -19,4 +19,5 @@ $(document).ready(function(){
 		texte += 'Trouvé en ' + nbTest + ' essais!</p>';
 		$('#resultat3').html(texte);
 	//}
+*/
 });

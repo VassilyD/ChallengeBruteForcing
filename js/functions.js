@@ -3,6 +3,7 @@ let workingDico = [];
 let nbTest = 0;
 let reponse = '';
 let isGood = false;
+let dateStart = 0;
 
 /*
 	Récupère le dictionnaire depuis le fichier data/dico.txt et le parse, ligne par ligne
@@ -35,29 +36,35 @@ function testPwd(password = '', nextFonction = null, returnFonction = null) {
 		xhttp.send();*/
 	}
 	
-	nbTest++;
-	isGood = (password === 'resolu');
-	if(!isGood) {
-		if(nextFonction != null) nextFonction();
-	} else {
-		if(returnFonction != null) {
-			reponse = password;
-			returnFonction();
+		if(!isGood) {
+			nbTest++;
+			isGood = (password === 'ca');
+			if(!isGood) {
+				if(nextFonction != null) setTimeout(nextFonction, 1);
+			} else {
+				if(returnFonction != null) {
+					reponse = password;
+					setTimeout(returnFonction, 1);
+				}
+			}
 		}
-	}
 }
 
 function formatResult() {
 	var texte = '<h2>Un Par un : </h2>';
 	texte += '<p>Mot de passe : ' + reponse + '<br>';
-	texte += 'Trouvé en ' + nbTest + ' essais!</p>';
+	texte += 'Trouvé en ' + nbTest + ' essais!<br>';
+	texte += '(' + Math.floor((Date.now() - dateStart) / 1000) + ' secondes)</p>';
+	dateStart = 0;
 	nbTest = 0;
 	isGood = false;
+	reponse = '';
 	return texte;
 }
 
 function testOneByOneFin() {
 	$('#resultat1').html(formatResult());
+	testDichotomie();
 }
 function testOneByOneStep() {
 	var password = workingDico[0];
@@ -67,6 +74,7 @@ function testOneByOneStep() {
 // Teste tous les mots du dictionnaire un par un
 // Renvoie le mot trouvé, sinon renvoie 'not found'
 function testOneByOne() {
+	dateStart = Date.now();
 	workingDico = dico.slice(0);
 	testOneByOneStep();
 /*	var length = dico.length;
@@ -77,9 +85,29 @@ function testOneByOne() {
 */
 }
 
+function testDichotomieFin() {
+	$('#resultat2').html(formatResult());
+	//testDichotomie();
+}
+function testDichotomieStep() {
+	for(var i = 0; i < workingDico.length; i++) {
+		var m = Math.floor(workingDico[i].length / 2);
+		var password = workingDico[i][m];
+		var tmp = workingDico[i].slice(0, m).concat(workingDico[i].slice(m + 1));
+		tmp.concat(workingDico.slice(i + 1));
+		workingDico = workingDico.slice(0, i).concat(tmp);
+		console.log(workingDico);
+		testPwd(password, null, testDichotomieFin);
+	}
+	if(!isGood) setTimeout(testDichotomieStep, 1);
+}
 // Teste le mot central récursivement
 // Renvoie le mot trouvé, sinon renvoie 'not found'
 function testDichotomie() {
+	dateStart = Date.now();
+	workingDico = [dico.slice(0)];
+	testDichotomieStep();
+/*
 	var length = dico.length;
 	var tmp = [];
 	var reponseTmp = '';
@@ -101,6 +129,7 @@ function testDichotomie() {
 		for(var i = 0; i < tmp2.length; i++) tmp.push(tmp2[i]);
 	}
 	return (isGood)?reponseTmp:'not found';
+*/
 }
 
 // Teste les mots du début, central et de la fin récursivement
