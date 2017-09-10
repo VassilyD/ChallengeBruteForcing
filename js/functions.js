@@ -63,7 +63,7 @@ function testPwd(wDico, ttt) {
 				tempsEcoule += ('00' + Math.floor((wDico.tempsTotal % (3600 * 1000)) / (60 * 1000))).slice(-2) + 'm ';
 				tempsEcoule += ('00' + Math.floor((wDico.tempsTotal % (60 * 1000)) / 1000)).slice(-2) + 's ';
 				tempsEcoule += ('00' + Math.floor((wDico.tempsTotal % 1000))).slice(-2) + 'ms';
-				wDico.dom.children('p.stats').text(wDico.nbTestTotal + ' essais en ' + tempsEcoule);
+				wDico.dom.children('p.stats').html((wDico.p + 1) + ' mots de passe trouvé :<br>' + wDico.nbTestTotal + ' essais en ' + tempsEcoule);
 			}
 		}
 }
