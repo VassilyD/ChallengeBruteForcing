@@ -1,11 +1,4 @@
 let dico = [];
-let workingDico = [];
-let iWorking = 0;
-let nbTest = 0;
-let reponse = '';
-let isGood = false;
-let dateStart = 0;
-let enCours = {};
 
 /*
 	Récupère le dictionnaire depuis le fichier data/dico.txt et le parse, ligne par ligne
@@ -23,8 +16,8 @@ function getDico() {
 
 // envoie la requete ajax pour tester un mot de passe et en vérifie le résultat
 // configure et renvoie isGood à true si le mdp correspond, à false sinon;
-function testPwd(password = '', nextFonction = null, returnFonction = null) {
-	if(password != '') {
+function testPwd(wDico) {
+	if(wDico.reponse != '') {
 		// Actuellement commenté car sur mon pc je n'ai pas encore installé de server...
 		/*var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
@@ -37,74 +30,67 @@ function testPwd(password = '', nextFonction = null, returnFonction = null) {
 		xhttp.open('GET', 'bruteforce/index.php?password=' + password, false);
 		xhttp.send();*/
 	}
-		enCours.text(password);
-		if(!isGood) {
-			nbTest++;
-			isGood = (password === 'luger');
-			if(!isGood) {
-				iWorking++;
-				if(nextFonction != null) setTimeout(nextFonction, 1);
+		wDico.dom.text(wDico.reponse);
+		if(!wDico.isGood) {
+			wDico.nbTest++;
+			wDico.isGood = (wDico.reponse === 'resolu');
+			if(!wDico.isGood) {
+				wDico.i++; // Permet de selectionner le prochain élément sur lequel travailler
+				setTimeout(function(){wDico.next(wDico)}, 1);
 			} else {
-				reponse = password;
-				if(returnFonction != null) {
-					setTimeout(returnFonction, 1);
-				}
+				wDico.dom.html(formatResult(wDico));
+				//if(returnFonction != null) {
+				//	setTimeout(function(){returnFonction(wDico)}, 1);
+				//}
 			}
 		}
 }
 
-function formatResult(titre) {
-	var texte = '<h2>' + titre + ' : </h2>';
-	texte += '<p>Mot de passe : ' + reponse + '<br>';
-	texte += 'Trouvé en ' + nbTest + ' essais!<br>';
-	texte += '(' + Math.floor((Date.now() - dateStart) / 1000) + ' secondes)</p>';
-	dateStart = 0;
-	nbTest = 0;
-	isGood = false;
-	reponse = '';
+function formatResult(wDico) {
+	var texte = '<p>Mot de passe : ' + wDico.reponse + '<br>';
+	texte += 'Trouvé en ' + wDico.nbTest + ' essais!<br>';
+	texte += '(' + Math.floor((Date.now() - wDico.dateStart) / 1000) + ' secondes)</p>';
+	//dateStart = 0;
+	//nbTest = 0;
+	//isGood = false;
+	//reponse = '';
 	return texte;
 }
 
-function testOneByOneFin() {
-	$('#resultat1').html(formatResult('Un Par un'));
-	testDichotomie();
+function testOneByOneFin(wDico) {
+	wDico.dom.html(formatResult(wDico));
 }
-function testOneByOneStep() {
-	var password = workingDico[iWorking];
-	testPwd(password, testOneByOneStep, testOneByOneFin);
+function testOneByOneStep(wDico) {
+	wDico.reponse = wDico.d[wDico.i];
+	testPwd(wDico);
 }
 // Teste tous les mots du dictionnaire un par un
 // Renvoie le mot trouvé, sinon renvoie 'not found'
 function testOneByOne() {
-	dateStart = Date.now();
-	workingDico = dico.slice(0);
-	iWorking = 0;
-	testOneByOneStep();
+	var wDico = {d: dico.slice(0), i: 0, dateStart: Date.now(), isGood: false, nbTest: 0, reponse: '', dom: $('#resultat1'), next: testOneByOneStep};
+	testOneByOneStep(wDico);
 }
 
 
 
-function testDichotomieFin() {
-	$('#resultat2').html(formatResult('Dichotomie'));
-	//testDichotomie();
+function testDichotomieFin(wDico) {
+	$('#resultat2').html(formatResult(wDico));
 }
-function testDichotomieStep() {
-	if(iWorking >= workingDico.length) iWorking = 0;
-	var m = Math.floor(workingDico[iWorking].length / 2);
-	var password = workingDico[iWorking][m];
-	var tmp = [workingDico[iWorking].slice(0, m)].concat([workingDico[iWorking].slice(m + 1)]);
-	tmp = tmp.concat(workingDico.slice(iWorking + 1));
-	workingDico = workingDico.slice(0, iWorking).concat(tmp);
-	iWorking++;
-	testPwd(password, testDichotomieStep, testDichotomieFin);
+function testDichotomieStep(wDico) {
+	if(wDico.i >= wDico.d.length) wDico.i = 0;
+	var m = Math.floor(wDico.d[wDico.i].length / 2); // Recupere l'indice central du sous tableau courant
+	wDico.reponse = wDico.d[wDico.i][m];
+	var tmp = [wDico.d[wDico.i].slice(0, m)].concat([wDico.d[wDico.i].slice(m + 1)]); // Divise le sous tableau en deux
+	tmp = tmp.concat(wDico.d.slice(wDico.i + 1)); // Ajoute les éléments restant après le sous tableau en cours
+	wDico.d = wDico.d.slice(0, wDico.i).concat(tmp);// Ajoute les éléments restant avant le sous tableau en cours
+	wDico.i++; // on à dédoubler un élément donc il faut augmenter iWorking pour le prendre en compte
+	testPwd(wDico);
 }
 // Teste le mot central récursivement
 // Renvoie le mot trouvé, sinon renvoie 'not found'
 function testDichotomie() {
-	dateStart = Date.now();
-	workingDico = [dico.slice(0)];
-	iWorking = 0;
-	testDichotomieStep();
+	var wDico = {d: [dico.slice(0)], i: 0, dateStart: Date.now(), isGood: false, nbTest: 0, reponse: '', dom: $('#resultat2'), next: testDichotomieStep};
+	testDichotomieStep(wDico);
 }
 
 // Teste les mots du début, central et de la fin récursivement
