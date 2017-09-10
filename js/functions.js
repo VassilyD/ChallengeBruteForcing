@@ -7,7 +7,9 @@ function getDico() {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			dico = this.responseText.split("\n");
+			//dico = this.responseText.split("\n");
+			dico = [];
+			for(i = 0; i < 1000; i++) dico.push('mdp' + i);
 			setTimeout(function(){testOneByOne(0)}, 1);
 			setTimeout(function(){testDichotomie(0)}, 1);
 			setTimeout(function(){testDichotomie2(0)}, 1);
@@ -43,13 +45,18 @@ function testPwd(wDico) {
 			} else {
 				wDico.dom.children('p.fini').html(wDico.dom.children('p.fini').html() + formatResult(wDico));
 				if(wDico.p + 1 < dico.length) setTimeout(function(){wDico.start(wDico.p + 1)});
+				else wDico.dom.children('p.enCours').text('Temps total : ' + wDico.tempsTotal + 's');
 			}
 		}
 }
 
 function formatResult(wDico) {
-	//console.log(wDico);
-	return (wDico.reponse + ' : ' + wDico.nbTest + ' (' + Math.floor((Date.now() - wDico.dateStart) / 1000) + 's)<br>');
+	var time = (Date.now() - wDico.dateStart);
+	wDico.tempsTotal += time;
+	time = Math.floor(time / 1000);
+	var d = new Date();
+	var horodatage = d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+	return (wDico.reponse + ' : ' + wDico.nbTest + ' (' + time + 's) (' + horodatage + ')<br>');
 }
 
 function testOneByOneStep(wDico) {
@@ -67,6 +74,7 @@ function testOneByOneStep(wDico) {
 function testOneByOne(imdp) {
 	var wDico = {d: dico.slice(0), 
 				 i: 0, dateStart: Date.now(), 
+				 tempsTotal: 0,
 				 isGood: false, 
 				 nbTest: 0, 
 				 p: imdp,
@@ -116,6 +124,7 @@ function testDichotomie(imdp) {
 	var wDico = {d: [dico.slice(0)], 
 				 i: 0, 
 				 dateStart: Date.now(), 
+				 tempsTotal: 0,
 				 isGood: false, 
 				 nbTest: 0, 
 				 p: imdp,
@@ -182,6 +191,7 @@ function testDichotomie2(imdp) {
 	var wDico = {d: [dico.slice(0)],
 				 i: 0, 
 				 dateStart: Date.now(),
+				 tempsTotal: 0,
 				 isGood: false,
 				 nbTest: 0,
 				 p: imdp,
