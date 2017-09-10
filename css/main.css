@@ -1,0 +1,25 @@
+h1 {
+	position: relative;
+	top: 0;
+	height: 10vh;
+}
+
+.methode {
+	position: relative;
+	top: 0;
+	display: inline-block;
+	float: left;
+	width: 32vw;
+}
+
+.n1 {
+	left: 1vw;
+}
+
+.n2 {
+	left: 1vw;
+}
+
+.n3 {
+	left: 1vw;
+}

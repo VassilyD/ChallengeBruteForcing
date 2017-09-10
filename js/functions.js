@@ -8,9 +8,9 @@ function getDico() {
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			dico = this.responseText.split("\n");
-			testOneByOne();
-			testDichotomie();
-			testDichotomie2();
+			setTimeout(function(){testOneByOne(0)}, 1);
+			setTimeout(function(){testDichotomie(0)}, 1);
+			setTimeout(function(){testDichotomie2(0)}, 1);
 		}
 	};
 	xhttp.open('GET', 'data/dico.txt', true);
@@ -33,27 +33,23 @@ function testPwd(wDico) {
 		xhttp.open('GET', 'bruteforce/index.php?password=' + password, false);
 		xhttp.send();*/
 	}
-		wDico.dom.text(wDico.reponse);
+		wDico.dom.children('p.enCours').text(wDico.reponse);
 		if(!wDico.isGood) {
-			wDico.isGood = (wDico.reponse === 'resolu');
+			wDico.isGood = (wDico.reponse === dico[wDico.p]);
 			wDico.nbTest++; 
 			if(!wDico.isGood) {
 				wDico.i++; // Permet de selectionner le prochain élément sur lequel travailler
 				setTimeout(function(){wDico.next(wDico)}, 1);
 			} else {
-				wDico.dom.html(formatResult(wDico));
+				wDico.dom.children('p.fini').html(wDico.dom.children('p.fini').html() + formatResult(wDico));
+				if(wDico.p + 1 < dico.length) setTimeout(function(){wDico.start(wDico.p + 1)});
 			}
 		}
 }
 
 function formatResult(wDico) {
-	var texte = '<p>Mot de passe : ' + wDico.reponse + '<br>';
-	if(wDico.reponse != 'Not found') {
-		texte += 'Trouvé en ' + wDico.nbTest + ' essais!<br>';
-		texte += '(' + Math.floor((Date.now() - wDico.dateStart) / 1000) + ' secondes)</p>';
-	}
-	console.log(wDico);
-	return texte;
+	//console.log(wDico);
+	return (wDico.reponse + ' : ' + wDico.nbTest + ' (' + Math.floor((Date.now() - wDico.dateStart) / 1000) + 's)<br>');
 }
 
 function testOneByOneStep(wDico) {
@@ -68,14 +64,16 @@ function testOneByOneStep(wDico) {
 }
 // Teste tous les mots du dictionnaire un par un
 // Renvoie le mot trouvé, sinon renvoie 'not found'
-function testOneByOne() {
+function testOneByOne(imdp) {
 	var wDico = {d: dico.slice(0), 
 				 i: 0, dateStart: Date.now(), 
 				 isGood: false, 
 				 nbTest: 0, 
+				 p: imdp,
 				 reponse: '', 
 				 dom: $('#resultat1'), 
-				 next: testOneByOneStep};
+				 next: testOneByOneStep,
+				 start: testOneByOne};
 	testOneByOneStep(wDico);
 }
 
@@ -114,15 +112,17 @@ function testDichotomieStep(wDico) {
 }
 // Teste le mot central récursivement
 // Renvoie le mot trouvé, sinon renvoie 'not found'
-function testDichotomie() {
+function testDichotomie(imdp) {
 	var wDico = {d: [dico.slice(0)], 
 				 i: 0, 
 				 dateStart: Date.now(), 
 				 isGood: false, 
 				 nbTest: 0, 
+				 p: imdp,
 				 reponse: '', 
 				 dom: $('#resultat2'), 
-				 next: testDichotomieStep};
+				 next: testDichotomieStep,
+				 start: testDichotomie};
 	testDichotomieStep(wDico);
 }
 
@@ -178,16 +178,18 @@ function testDichotomie2Step(wDico) {
 }
 // Teste le mot central récursivement
 // Renvoie le mot trouvé, sinon renvoie 'not found'
-function testDichotomie2() {
+function testDichotomie2(imdp) {
 	var wDico = {d: [dico.slice(0)],
 				 i: 0, 
 				 dateStart: Date.now(),
 				 isGood: false,
 				 nbTest: 0,
+				 p: imdp,
 				 reponse: '', 
 				 reponses: [dico[0], dico[Math.floor(dico.length / 2)], dico[dico.length - 1]], 
 				 iTable: 0, 
 				 dom: $('#resultat3'), 
-				 next: testDichotomie2Step};
+				 next: testDichotomie2Step,
+				 start: testDichotomie2};
 	testDichotomie2Step(wDico);
 }
