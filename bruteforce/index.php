@@ -22,4 +22,3 @@
 		echo "Undefined password";
 	}
 ?>
-
