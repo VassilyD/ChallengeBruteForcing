@@ -4,7 +4,7 @@ let dico = [];
 	Récupère le dictionnaire depuis le fichier data/dico.txt et le parse, ligne par ligne
 */
 function getDico() {
-	var xhttp = new XMLHttpRequest();
+	/*var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			dico = this.responseText.split("\n");
@@ -14,7 +14,15 @@ function getDico() {
 		}
 	};
 	xhttp.open('GET', 'data/dico.txt', true);
-	xhttp.send();
+	xhttp.send();*/
+	$.get('data/dico.txt', function(data) {
+		dico = data.split("\n");
+		//dico = [];
+		//for(i = 0; i < 100; i++) dico.push('mdp' + i);
+		setTimeout(testOneByOne, 1);
+		setTimeout(testDichotomie, 1);
+		setTimeout(testDichotomie2, 1);
+	}, 'text');
 }
 
 // envoie la requete ajax pour tester un mot de passe et en vérifie le résultat
@@ -32,6 +40,11 @@ function testPwd(wDico) {
 		};
 		xhttp.open('GET', 'bruteforce/index.php?password=' + password, false);
 		xhttp.send();*/
+		/*
+		$.get('bruteforce/index.php?password=' + wDico.reponse, function(){
+			
+		}, 'text');
+		*/
 	}
 		wDico.dom.text(wDico.reponse);
 		if(!wDico.isGood) {
