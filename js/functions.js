@@ -35,16 +35,13 @@ function testPwd(wDico) {
 	}
 		wDico.dom.text(wDico.reponse);
 		if(!wDico.isGood) {
-			wDico.nbTest++;
 			wDico.isGood = (wDico.reponse === 'resolu');
+			wDico.nbTest++; 
 			if(!wDico.isGood) {
 				wDico.i++; // Permet de selectionner le prochain élément sur lequel travailler
 				setTimeout(function(){wDico.next(wDico)}, 1);
 			} else {
 				wDico.dom.html(formatResult(wDico));
-				//if(returnFonction != null) {
-				//	setTimeout(function(){returnFonction(wDico)}, 1);
-				//}
 			}
 		}
 }
@@ -86,12 +83,28 @@ function testOneByOne() {
 function testDichotomieStep(wDico) {
 	if(wDico.nbTest < dico.length) {
 		if(wDico.i >= wDico.d.length) wDico.i = 0;
-		var m = Math.floor(wDico.d[wDico.i].length / 2); // Recupere l'indice central du sous tableau courant
-		wDico.reponse = wDico.d[wDico.i][m];
-		var tmp = [wDico.d[wDico.i].slice(0, m)].concat([wDico.d[wDico.i].slice(m + 1)]); // Divise le sous tableau en deux en excluant l'élément du milieu
-		tmp = tmp.concat(wDico.d.slice(wDico.i + 1)); // Ajoute les éléments restant après le sous tableau en cours
-		wDico.d = wDico.d.slice(0, wDico.i).concat(tmp);// Ajoute les éléments restant avant le sous tableau en cours
-		wDico.i++; // on à dédoubler un élément donc il faut augmenter iWorking pour le prendre en compte
+		if(wDico.d[wDico.i].length > 1) {
+			var m = Math.floor(wDico.d[wDico.i].length / 2); // Recupere l'indice central du sous tableau courant
+			wDico.reponse = wDico.d[wDico.i][m];
+
+			// Divise le sous tableau en deux en excluant l'élément du milieu
+			var tmp = [];
+			if(m > 0) tmp = [wDico.d[wDico.i].slice(0, m)]; // partie de gauche
+			if(m < wDico.d[wDico.i].length - 1) tmp = tmp.concat([wDico.d[wDico.i].slice(m + 1)]); // Partie de droite
+			var tmpLength = tmp.length;
+
+			if(wDico.i < wDico.d.length - 1) tmp = tmp.concat(wDico.d.slice(wDico.i + 1)); // Ajoute les éléments restant après le sous tableau en cours
+			if(wDico.i > 0) wDico.d = wDico.d.slice(0, wDico.i).concat(tmp);// Ajoute les éléments restant avant le sous tableau en cours
+			else wDico.d = tmp.slice(0);
+
+			if(tmpLength == 2) wDico.i++; // on a dédoublé un élément donc il faut augmenter iWorking pour le prendre en compte
+			else if(tmpLength == 0) wDico.i--; // on a supprimé un élément donc il faut diminuer iWorking pour le prendre en compte
+		}
+		else {
+			wDico.reponse = wDico.d[wDico.i][0];
+			wDico.d = wDico.d.slice(0, wDico.i).concat(wDico.d.slice(wDico.i + 1)); // On supprime le sous tableau désormais inutile
+			wDico.i--; // on a supprimer un élément donc il faut diminuer iWorking pour le prendre en compte
+		}
 		testPwd(wDico);
 	}
 	else {
@@ -119,10 +132,18 @@ function testDichotomie2Step(wDico) {
 		if(wDico.i >= wDico.reponses.length) {
 			if(wDico.d[wDico.iTable].length > 3) {
 				var m = Math.floor(wDico.d[wDico.iTable].length / 2); // Recupere l'indice central du sous tableau courant
-				var tmp = [wDico.d[wDico.iTable].slice(1, m)].concat([wDico.d[wDico.iTable].slice(m + 1, wDico.d[wDico.iTable].length - 1)]); // Divise le sous tableau en deux en excluant les éléments début/milieu/fin
-				tmp = tmp.concat(wDico.d.slice(wDico.iTable + 1)); // Ajoute les éléments restant après le sous tableau en cours
-				wDico.d = wDico.d.slice(0, wDico.iTable).concat(tmp);// Ajoute les éléments restant avant le sous tableau en cours
-				wDico.iTable += 2; // Pour passer au tableau suivante il faut aussi passer le nouveau sous tableau créé
+
+				// Divise le sous tableau en deux en excluant les éléments début/milieu/fin
+				var tmp = [];
+				if(m > 1) tmp = [wDico.d[wDico.iTable].slice(1, m)]; // Partie gauche
+				if(m < wDico.d[wDico.iTable].length - 2) tmp = tmp.concat([wDico.d[wDico.iTable].slice(m + 1, wDico.d[wDico.iTable].length - 1)]); // Partie droite
+				var tmpLength = tmp.length;
+
+				if(wDico.iTable < wDico.d.length - 1) tmp = tmp.concat(wDico.d.slice(wDico.iTable + 1)); // Ajoute les éléments restant après le sous tableau en cours
+				if(wDico.iTable > 0) wDico.d = wDico.d.slice(0, wDico.iTable).concat(tmp);// Ajoute les éléments restant avant le sous tableau en cours
+				else wDico.d = tmp.slice(0);
+
+				wDico.iTable += tmpLength; // Pour passer au tableau suivant il faut aussi passer le(s) nouveau(x) sous tableau créé
 			}
 			else {
 				wDico.d = wDico.d.slice(0, wDico.iTable).concat(wDico.d.slice(wDico.iTable + 1));
@@ -170,32 +191,3 @@ function testDichotomie2() {
 				 next: testDichotomie2Step};
 	testDichotomie2Step(wDico);
 }
-/*
-// Teste les mots du début, central et de la fin récursivement
-// Renvoie le mot trouvé, sinon renvoie 'not found'
-function testDichotomie2() {
-	var length = dico.length;
-	var tmp = [];
-	var reponseTmp = '';
-	tmp.push(dico);
-	while(!isGood && nbTest < length) {
-		var tmp2 = [];
-		for(var i = 0; i < tmp.length; i++) {
-			if(!isGood) {
-				var iTest = Math.floor(tmp[i].length / 2);
-				if(testPwd(tmp[i][iTest])) reponseTmp = tmp[i][iTest]; // test du milieu du sous-tableau
-				else if(testPwd(tmp[i][tmp[i].length - 1])) reponseTmp = tmp[i][tmp[i].length - 1]; // test de la fin du sous-tableau
-				else if(testPwd(tmp[i][0])) reponseTmp = tmp[i][0]; // test du début du sous-tableau
-				else {
-					// Scinde le sous-tableau en 2 au niveau du milieu, début/milieu/fin exclue
-					tmp2.push(tmp[i].slice(1, iTest), tmp[i].slice(iTest + 1, tmp[i].length - 1))
-				}
-			}
-		}
-		// Mise à jour du tableau de tableau de test
-		tmp = [];
-		for(var i = 0; i < tmp2.length; i++) tmp.push(tmp2[i]);
-	}
-	return (isGood)?reponseTmp:'not found';
-}
-*/
