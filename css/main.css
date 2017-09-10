@@ -1,7 +1,14 @@
 h1 {
 	position: relative;
 	top: 0;
-	height: 10vh;
+	left: 2.5vw;
+	height: 5vh;
+	font-size: 4vh;
+	line-height: 4vh;
+	width: 95vw;
+	margin: 0;
+	padding: 0;
+	text-align: center;
 }
 
 .methode {

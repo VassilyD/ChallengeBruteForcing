@@ -4,24 +4,32 @@ let dico = [];
 	Récupère le dictionnaire depuis le fichier data/dico.txt et le parse, ligne par ligne
 */
 function getDico() {
-	var xhttp = new XMLHttpRequest();
+	/*var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			//dico = this.responseText.split("\n");
-			dico = [];
-			for(i = 0; i < 1000; i++) dico.push('mdp' + i);
-			setTimeout(function(){testOneByOne(0)}, 1);
-			setTimeout(function(){testDichotomie(0)}, 1);
-			setTimeout(function(){testDichotomie2(0)}, 1);
+			dico = data.split("\n");
+			//dico = [];
+			//for(i = 0; i < 100; i++) dico.push('mdp' + i);
+			setTimeout(function(){testOneByOne(0, 0, 0)}, 1);
+			setTimeout(function(){testDichotomie(0, 0, 0)}, 1);
+			setTimeout(function(){testDichotomie2(0, 0, 0)}, 1);
 		}
 	};
 	xhttp.open('GET', 'data/dico.txt', true);
-	xhttp.send();
+	xhttp.send();*/
+	$.get('data/dico.txt', function(data) {
+		dico = data.split("\n");
+		//dico = [];
+		//for(i = 0; i < 100; i++) dico.push('mdp' + i);
+		setTimeout(function(){testOneByOne(0, 0, 0)}, 1);
+		setTimeout(function(){testDichotomie(0, 0, 0)}, 1);
+		setTimeout(function(){testDichotomie2(0, 0, 0)}, 1);
+	}, 'text');
 }
 
 // envoie la requete ajax pour tester un mot de passe et en vérifie le résultat
 // configure et renvoie isGood à true si le mdp correspond, à false sinon;
-function testPwd(wDico) {
+function testPwd(wDico, ttt) {
 	if(wDico.reponse != '') {
 		// Actuellement commenté car sur mon pc je n'ai pas encore installé de server...
 		/*var xhttp = new XMLHttpRequest();
@@ -32,25 +40,36 @@ function testPwd(wDico) {
 				nbTest++;
 			}
 		};
-		xhttp.open('GET', 'bruteforce/index.php?password=' + password, false);
+		xhttp.open('GET', 'bruteforce/index.php?password=' + wDico.reponse, false);
 		xhttp.send();*/
+		/*
+		$.get('bruteforce/index.php?password=' + wDico.reponse, function(){
+			
+		}, 'text');
+		*/
 	}
-		wDico.dom.children('p.enCours').text(wDico.reponse);
+		wDico.dom.children('p.enCours').text(dico[wDico.p] + ' : ' + wDico.reponse);
 		if(!wDico.isGood) {
 			wDico.isGood = (wDico.reponse === dico[wDico.p]);
 			wDico.nbTest++; 
 			if(!wDico.isGood) {
 				wDico.i++; // Permet de selectionner le prochain élément sur lequel travailler
-				setTimeout(function(){wDico.next(wDico)}, 1);
+				setTimeout(function(){wDico.next(wDico)}, ttt);
 			} else {
 				wDico.dom.children('p.fini').html(wDico.dom.children('p.fini').html() + formatResult(wDico));
-				if(wDico.p + 1 < dico.length) setTimeout(function(){wDico.start(wDico.p + 1)});
-				else wDico.dom.children('p.enCours').text('Temps total : ' + wDico.tempsTotal + 's');
+				if(wDico.p + 1 < dico.length) setTimeout(function(){wDico.start(wDico.p + 1, wDico.tempsTotal, wDico.nbTestTotal), 1});
+
+				var tempsEcoule = Math.floor(wDico.tempsTotal / (3600 * 1000)) + 'h ';
+				tempsEcoule += ('00' + Math.floor((wDico.tempsTotal % (3600 * 1000)) / (60 * 1000))).slice(-2) + 'm ';
+				tempsEcoule += ('00' + Math.floor((wDico.tempsTotal % (60 * 1000)) / 1000)).slice(-2) + 's ';
+				tempsEcoule += ('00' + Math.floor((wDico.tempsTotal % 1000))).slice(-2) + 'ms';
+				wDico.dom.children('p.stats').text(wDico.nbTestTotal + ' essais en ' + tempsEcoule);
 			}
 		}
 }
 
 function formatResult(wDico) {
+	wDico.nbTestTotal += wDico.nbTest;
 	var time = (Date.now() - wDico.dateStart);
 	wDico.tempsTotal += time;
 	time = Math.floor(time / 1000);
@@ -62,7 +81,7 @@ function formatResult(wDico) {
 function testOneByOneStep(wDico) {
 	if(wDico.nbTest < dico.length) {
 		wDico.reponse = wDico.d[wDico.i];
-		testPwd(wDico);
+		testPwd(wDico, 1);
 	}
 	else {
 		wDico.reponse = 'Not found';
@@ -71,12 +90,13 @@ function testOneByOneStep(wDico) {
 }
 // Teste tous les mots du dictionnaire un par un
 // Renvoie le mot trouvé, sinon renvoie 'not found'
-function testOneByOne(imdp) {
+function testOneByOne(imdp, temps, nbEssais) {
 	var wDico = {d: dico.slice(0), 
 				 i: 0, dateStart: Date.now(), 
-				 tempsTotal: 0,
+				 tempsTotal: temps,
 				 isGood: false, 
 				 nbTest: 0, 
+				 nbTestTotal: nbEssais,
 				 p: imdp,
 				 reponse: '', 
 				 dom: $('#resultat1'), 
@@ -111,7 +131,7 @@ function testDichotomieStep(wDico) {
 			wDico.d = wDico.d.slice(0, wDico.i).concat(wDico.d.slice(wDico.i + 1)); // On supprime le sous tableau désormais inutile
 			wDico.i--; // on a supprimer un élément donc il faut diminuer iWorking pour le prendre en compte
 		}
-		testPwd(wDico);
+		testPwd(wDico, 1);
 	}
 	else {
 		wDico.reponse = 'Not found';
@@ -120,13 +140,14 @@ function testDichotomieStep(wDico) {
 }
 // Teste le mot central récursivement
 // Renvoie le mot trouvé, sinon renvoie 'not found'
-function testDichotomie(imdp) {
+function testDichotomie(imdp, temps, nbEssais) {
 	var wDico = {d: [dico.slice(0)], 
 				 i: 0, 
 				 dateStart: Date.now(), 
-				 tempsTotal: 0,
+				 tempsTotal: temps,
 				 isGood: false, 
 				 nbTest: 0, 
+				 nbTestTotal: nbEssais,
 				 p: imdp,
 				 reponse: '', 
 				 dom: $('#resultat2'), 
@@ -178,7 +199,7 @@ function testDichotomie2Step(wDico) {
 		}
 		wDico.reponse = wDico.reponses[wDico.i];
 		//wDico.i++; // on à dédoubler un élément donc il faut augmenter iWorking pour le prendre en compte
-		testPwd(wDico);
+		testPwd(wDico, 1);
 	}
 	else {
 		wDico.reponse = 'Not found';
@@ -187,13 +208,14 @@ function testDichotomie2Step(wDico) {
 }
 // Teste le mot central récursivement
 // Renvoie le mot trouvé, sinon renvoie 'not found'
-function testDichotomie2(imdp) {
+function testDichotomie2(imdp, temps, nbEssais) {
 	var wDico = {d: [dico.slice(0)],
 				 i: 0, 
 				 dateStart: Date.now(),
-				 tempsTotal: 0,
+				 tempsTotal: temps,
 				 isGood: false,
 				 nbTest: 0,
+				 nbTestTotal: nbEssais,
 				 p: imdp,
 				 reponse: '', 
 				 reponses: [dico[0], dico[Math.floor(dico.length / 2)], dico[dico.length - 1]], 
