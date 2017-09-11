@@ -40,11 +40,11 @@ function testPwd(wDico) {
 		};
 		xhttp.open('GET', 'bruteforce/index.php?password=' + password, false);
 		xhttp.send();*/
-		/*
+		
 		$.get('bruteforce/index.php?password=' + wDico.reponse, function(){
 			
 		}, 'text');
-		*/
+		
 	}
 		wDico.dom.text(wDico.reponse);
 		if(!wDico.isGood) {
