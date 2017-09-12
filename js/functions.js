@@ -1,4 +1,5 @@
 let dico = [];
+const GOOD_RETOUR = "<iframe width='420' height='315' src='https://www.youtube.com/embed/kxopViU98Xo' frameborder='0' allowfullscreen></iframe>";
 
 /*
 	Récupère le dictionnaire depuis le fichier data/dico.txt et le parse, ligne par ligne
@@ -19,44 +20,42 @@ function getDico() {
 		dico = data.split("\n");
 		//dico = [];
 		//for(i = 0; i < 100; i++) dico.push('mdp' + i);
-		setTimeout(testOneByOne, 1);
-		setTimeout(testDichotomie, 1);
-		setTimeout(testDichotomie2, 1);
+		testOneByOne();
+		testDichotomie();
+		testDichotomie2();
 	}, 'text');
 }
 
 // envoie la requete ajax pour tester un mot de passe et en vérifie le résultat
 // configure et renvoie isGood à true si le mdp correspond, à false sinon;
 function testPwd(wDico) {
-	if(wDico.reponse != '') {
-		// Actuellement commenté car sur mon pc je n'ai pas encore installé de server...
-		/*var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				//console.log(this.responseText);
-				//idGood = (this.responseText !== 'Undefined password' && this.responseText !== "<div style='color:red; font-size:18px'>Erroneous password</div>");
-				nbTest++;
-			}
-		};
-		xhttp.open('GET', 'bruteforce/index.php?password=' + password, false);
-		xhttp.send();*/
-		
-		$.get('bruteforce/index.php?password=' + wDico.reponse, function(){
-			
-		}, 'text');
-		
-	}
-		wDico.dom.text(wDico.reponse);
-		if(!wDico.isGood) {
-			wDico.isGood = (wDico.reponse === 'resolu');
+	// Actuellement commenté car sur mon pc je n'ai pas encore installé de server...
+	/*var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			//console.log(this.responseText);
+			//idGood = (this.responseText !== 'Undefined password' && this.responseText !== "<div style='color:red; font-size:18px'>Erroneous password</div>");
+			nbTest++;
+		}
+	};
+	xhttp.open('GET', 'bruteforce/index.php?password=' + password, false);
+	xhttp.send();*/
+	
+	wDico.dom.text(wDico.reponse);
+	if(!wDico.isGood) {
+		$.get('bruteforce/index.php?password=' + wDico.reponse, function(data, status){
+			wDico.isGood = (data === GOOD_RETOUR);
 			wDico.nbTest++; 
+			//console.log(data);
 			if(!wDico.isGood) {
 				wDico.i++; // Permet de selectionner le prochain élément sur lequel travailler
-				setTimeout(function(){wDico.next(wDico)}, 1);
+				wDico.next(wDico);
 			} else {
 				wDico.dom.html(formatResult(wDico));
 			}
-		}
+		}, 'html');
+	}
+	
 }
 
 function formatResult(wDico) {
