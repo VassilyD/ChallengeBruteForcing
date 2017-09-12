@@ -1,31 +1,41 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<title>Bruteforce</title>
-	<meta charset="utf-8">
-	<script type="text/javascript" src='https://code.jquery.com/jquery-3.1.0.min.js'></script>
+    <title>Bruteforce</title>
+    <meta charset="utf-8">
+    <script type="text/javascript" src='https://code.jquery.com/jquery-3.1.0.min.js'></script>
 
-	<!-- Gère les déclaractions des variables globales ainsi que les définnitions des fonctions -->
-	<script type="text/javascript" src="js/functions.js"></script>
-
-	<link rel="stylesheet" type="text/css" href="css/main.css">
+    <!-- Gère les déclaractions des variables globales ainsi que les définnitions des fonctions -->
+    <script type="text/javascript" src="js/functions.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Libre+Barcode+39+Text" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Arvo" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
-<body>
-	<h1>Brute force par dictionnaire</h1>
-	<div>
-		<h2>Un par un :</h2>
-		<div id='resultat1'></div>
-	</div>
-	<div>
-		<h2>Dichotomie :</h2>
-		<div id='resultat2'></div>
-	</div>
-	<div>
-		<h2>Dichotomie étendue :</h2>
-		<div id='resultat3'></div>
-	</div>
 
-	<!-- Gère toute les actions à effectuer une fois la page chargé -->
-	<script type="text/javascript" src="js/core.js"></script>
+<body>
+    <div id="container">
+       <div id="bar-container">Running
+           <div id="close">X</div>
+       </div>
+        <div class="main-title">Brute Force</div>
+
+        <div class="element">
+            <div class="title">Un par un :</div>
+            <div id='resultat1'></div>
+        </div>
+        <div class="element">
+            <div class="title">Dichotomie :</div>
+            <div id='resultat2'></div>
+        </div>
+        <div class="element">
+            <div class="title">Dichotomie étendue :</div>
+            <div id='resultat3'></div>
+        </div>
+        <div class="element2"></div>
+    </div>
+    <!-- Gère toute les actions à effectuer une fois la page chargé -->
+    <script type="text/javascript" src="js/core.js"></script>
 </body>
+
 </html>
