@@ -1,5 +1,4 @@
 let dico = [];
-const GOOD_RETOUR = "<iframe width='420' height='315' src='https://www.youtube.com/embed/kxopViU98Xo' frameborder='0' allowfullscreen></iframe>";
 
 /*
 	Récupère le dictionnaire depuis le fichier data/dico.txt et le parse, ligne par ligne
@@ -29,7 +28,6 @@ function getDico() {
 // envoie la requete ajax pour tester un mot de passe et en vérifie le résultat
 // configure et renvoie isGood à true si le mdp correspond, à false sinon;
 function testPwd(wDico) {
-	// Actuellement commenté car sur mon pc je n'ai pas encore installé de server...
 	/*var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
@@ -44,27 +42,39 @@ function testPwd(wDico) {
 	wDico.dom.text(wDico.reponse);
 	if(!wDico.isGood) {
 		$.get('bruteforce/index.php?password=' + wDico.reponse, function(data, status){
-			wDico.isGood = (data === GOOD_RETOUR);
-			wDico.nbTest++; 
-			//console.log(data);
-			if(!wDico.isGood) {
-				wDico.i++; // Permet de selectionner le prochain élément sur lequel travailler
-				wDico.next(wDico);
-			} else {
-				wDico.dom.html(formatResult(wDico));
+			// Test si le site est lancer depuis un serveur sans php, auquel cas on utilise une fonction de substitution
+			if(/mcrypt_encrypt/.test(data)) {
+				wDico.isGood = /^resolu\r/.test(wDico.reponse);
+				wDico.nbTest++; 
+				if(!wDico.isGood) {
+					wDico.i++; // Permet de selectionner le prochain élément sur lequel travailler
+					wDico.next(wDico);
+				} else {
+					wDico.dom.html(formatResult(wDico));
+				}
 			}
-		}, 'html');
+			else {
+				wDico.isGood = !(/password/.test(data)); // seul les deux cas érroné renvoie une chaine de caractère comprenant le mot password
+				wDico.nbTest++; 
+				if(!wDico.isGood) {
+					wDico.i++; // Permet de selectionner le prochain élément sur lequel travailler
+					wDico.next(wDico);
+				} else {
+					wDico.dom.html(formatResult(wDico));
+				}
+			}
+		}, 'text');
 	}
 	
 }
 
 function formatResult(wDico) {
-	var texte = '<p>Mot de passe : ' + wDico.reponse + '<br>';
+	var texte = 'Mot de passe : <span style="text-decoration: underline">' + wDico.reponse + '</span>';
 	if(wDico.reponse != 'Not found') {
-		texte += 'Trouvé en ' + wDico.nbTest + ' essais!<br>';
-		texte += '(' + Math.floor((Date.now() - wDico.dateStart) / 1000) + ' secondes)</p>';
+		texte += '<br>trouvé en ' + wDico.nbTest + ' essais!';
+		texte += ' (' + Math.floor((Date.now() - wDico.dateStart) / 1000) + ' secondes)';
 	}
-	console.log(wDico);
+	texte += '';
 	return texte;
 }
 
