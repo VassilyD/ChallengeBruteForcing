@@ -44,7 +44,7 @@ function testPwd(wDico) {
 		$.get('bruteforce/index.php?password=' + wDico.reponse, function(data, status){
 			// Test si le site est lancer depuis un serveur sans php, auquel cas on utilise une fonction de substitution
 			if(/mcrypt_encrypt/.test(data)) {
-				wDico.isGood = /^resolu\r/.test(wDico.reponse);
+				wDico.isGood = /^ah(\r)?$/.test(wDico.reponse);
 				wDico.nbTest++; 
 				if(!wDico.isGood) {
 					wDico.i++; // Permet de selectionner le prochain élément sur lequel travailler
